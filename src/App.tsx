@@ -5,11 +5,11 @@ import ScrollToTop from "./components/comics/ScrollToTop"
 const App = () => {
   return (
     <>
-    <ScrollToTop/>
-    <Toaster position="top-right" closeButton/>
-    <Router/>
+      <ScrollToTop />
+      <Toaster position="top-right" closeButton />
+      <Router />
     </>
-  )
+  );
 }
 
 export default App

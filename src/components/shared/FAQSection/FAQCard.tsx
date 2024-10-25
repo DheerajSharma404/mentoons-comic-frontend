@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -10,8 +11,8 @@ import {
 import { applyForJob } from "@/redux/careerSlice";
 import { uploadFile } from "@/redux/fileUploadSlice";
 import { AppDispatch, RootState } from "@/redux/store";
-import { DialogClose } from "@radix-ui/react-dialog";
 import { Loader } from "lucide-react";
+import { useAuth } from "@clerk/clerk-react";
 
 // import emailjs from "emailjs-com";
 import React, { FormEvent, useState } from "react";
@@ -19,6 +20,7 @@ import { FaTimes } from "react-icons/fa";
 import { IoChevronDown } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 export type TPOSITION = {
   _id: string;
@@ -32,6 +34,8 @@ export type TPOSITION = {
 };
 // JOB ACCORDIAN COMPONENT
 const FAQCard = ({ position, id }: { position: TPOSITION, id: string }) => {
+  const navigate = useNavigate()
+  const { getToken } = useAuth();
   const [isExpanded, setIsExpanded] = React.useState<boolean>(false);
 
   const handleIsExpanded = () => {
@@ -92,8 +96,11 @@ const FAQCard = ({ position, id }: { position: TPOSITION, id: string }) => {
       <div className=" w-full px-4 ">
         <Dialog>
           <DialogTrigger asChild>
-            <Button className="text-neutral-700 font-bold px-5 py-2 w-full border bg-transparent border-neutral-700 hover:bg-orange-400/40 hover:border-orange-400 mb-4 rounded-md transition-all duration-300">
-              Apply Now
+            <Button className="text-neutral-700 font-bold px-5 py-2 w-full border bg-transparent border-neutral-700 hover:bg-orange-400/40 hover:border-orange-400 mb-4 rounded-md transition-all duration-300" onClick={async ()=>{
+              const token = await getToken()
+              if(!token) navigate('/sign-in')
+            }}>
+              Apply Now 
             </Button>
           </DialogTrigger>
           <DialogContent className="z-[999999]">
@@ -131,10 +138,11 @@ interface FormError {
 }
 
 export function JobApplicationForm({ id }: { id: string }) {
-
+  const navigate = useNavigate()
   const dispatch = useDispatch<AppDispatch>();
+  const { getToken } = useAuth();
+  const { loading } = useSelector((state: RootState) => state.career);
 
-  const { loading } = useSelector((state: RootState) => state.career)
   const [formData, setFormData] = useState<HiringFormData>({
     name: "",
     email: "",
@@ -217,31 +225,45 @@ export function JobApplicationForm({ id }: { id: string }) {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
-      if (formData.resume) {
-        try {
-          const fileAction = await dispatch(uploadFile(formData.resume));
-          if (fileAction.payload?.data?.imageUrl) {
-            const fileData = fileAction.payload.data.imageUrl;
-            const res = await dispatch(applyForJob({ jobId: id, formData: { ...formData, resume: fileData } }));
 
-            if (res.payload?.success) {
-              toast.success("Application submitted successfully");
-            } else {
-              toast.error(res.payload?.message || "Failed to submit application");
-            }
-          } else {
-            toast.error("Failed to upload resume");
-          }
-        } catch (error) {
-          console.error("Error during job application:", error);
-          toast.error("An error occurred while submitting your application");
-        }
-      } else {
-        toast.error("Resume is required");
+    if (!validateForm()) {
+      return toast.error("Please fill all the required fields correctly");
+    }
+
+    if (!formData.resume) {
+      return toast.error("Resume is required");
+    }
+
+    try {
+      const token = await getToken();
+      if (!token) {
+        navigate('/sign-in')
+        return toast.error('Login first to apply');
       }
-    } else {
-      toast.error("Please fill all the required fields correctly");
+
+      const fileAction = await dispatch(uploadFile({ 
+        file: formData.resume, 
+        getToken: async () => token
+      }));
+
+      const fileUrl = fileAction.payload?.data?.imageUrl;
+      if (!fileUrl) {
+        return toast.error("Failed to upload resume");
+      }
+
+      const res = await dispatch(applyForJob({ 
+        jobId: id, 
+        formData: { ...formData, resume: fileUrl } 
+      }));
+
+      if (res.payload?.success) {
+        toast.success("Application submitted successfully");
+      } else {
+        toast.error(res.payload?.message || "Failed to submit application");
+      }
+    } catch (error) {
+      console.error("Error during job application:", error);
+      toast.error("An error occurred while submitting your application");
     }
   };
   if (loading) return <Loader />
