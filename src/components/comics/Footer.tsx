@@ -8,7 +8,7 @@ import { AiFillInstagram } from "react-icons/ai";
 import { FaFacebookSquare } from "react-icons/fa";
 import { ImLinkedin } from "react-icons/im";
 import { IoLogoWhatsapp, IoLogoYoutube, IoMdClose } from "react-icons/io";
-import { MdLocationOn } from "react-icons/md";
+import { MdLocationOn, MdEmail, MdPhone } from "react-icons/md";
 import { Link, useNavigate } from "react-router-dom";
 import MapComponent from "./MapComponent";
 import * as Yup from "yup";
@@ -39,6 +39,7 @@ const Footer: React.FC = () => {
   const [showWorkshop, setshowWorkshop] = useState<boolean>(false);
   const [showInside, setShowInside] = useState<boolean>(false);
   const [showShop, setShowShop] = useState<boolean>(false);
+  const [showContactModal, setShowContactModal] = useState(false);
 
   // const comicData = [
   //   "Don't Fade Away",
@@ -94,10 +95,12 @@ const Footer: React.FC = () => {
 
   const scrollToHomeSection = () => {
     if (location.pathname === "/") {
-      const element = document.getElementById("home-heroSection");
-      element?.scrollIntoView({ behavior: "smooth" });
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
     } else {
-      navigate("/", { state: { scrollToHomeSection: true } });
+      navigate("/", { state: { scrollToTop: true } });
     }
   };
 
@@ -209,7 +212,7 @@ const Footer: React.FC = () => {
         {/* top section */}
         <div className="flex flex-wrap items-center justify-between pt-4 lg:pt-0 space-y-4 lg:space-y-0">
           <div>
-            <Link to="/">
+            <Link to="/" onClick={scrollToHomeSection}>
               <img className="w-60" src={Logo} alt="mentoons logo" />
             </Link>
           </div>
@@ -234,8 +237,14 @@ const Footer: React.FC = () => {
               <div className="px-4 cursor-pointer font-semibold">Workshops</div>
             </Link>
           </div>
-          <div className="w-full lg:w-fit bg-[#662d0a94] uppercase font-semibold hover:text-[#f87218ea] hover:bg-white transition-all ease-in-out duration-300 cursor-pointer px-4 py-2 rounded-full">
-            Contact Us
+          <div className="relative">
+            <div 
+              className="w-full lg:w-fit bg-[#662d0a94] uppercase font-semibold hover:text-[#f87218ea] hover:bg-white transition-all ease-in-out duration-300 cursor-pointer px-4 py-2 rounded-full"
+              onClick={() => setShowContactModal(!showContactModal)}
+            >
+              Contact Us
+            </div>
+            {showContactModal && <ContactInfo onClose={() => setShowContactModal(false)} />}
           </div>
         </div>
         {/* middle section */}
@@ -528,6 +537,35 @@ const Footer: React.FC = () => {
             })}
           </div>
         </div>
+      </div>
+    </div>
+  );
+};
+
+const ContactInfo: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+  return (
+    <div className="absolute top-full left-0 mt-2 w-64 bg-[#662d0a] rounded-lg shadow-lg p-4 z-10">
+      <button
+        onClick={onClose}
+        className="absolute top-2 right-5 text-white hover:text-[#f87218ea] transition-all duration-300"
+      >
+        <IoMdClose size={20} />
+      </button>
+      <div className="space-y-3">
+        <a
+          href="mailto:info@mentoons.com"
+          className="flex items-center space-x-2 text-white hover:text-[#f87218ea] transition-all duration-300"
+        >
+          <MdEmail size={20} />
+          <span>info@mentoons.com</span>
+        </a>
+        <a
+          href="tel:+919036033300"
+          className="flex items-center space-x-2 text-white hover:text-[#f87218ea] transition-all duration-300"
+        >
+          <MdPhone size={20} />
+          <span>+91 90360 33300</span>
+        </a>
       </div>
     </div>
   );

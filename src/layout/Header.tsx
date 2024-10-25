@@ -14,13 +14,14 @@ import { useEffect, useState } from "react";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { MdOutlineClose } from "react-icons/md";
 import { NavLink, useNavigate } from "react-router-dom";
+import { FaHome, FaCalendarAlt, FaPhone } from "react-icons/fa";
 
 const Header = () => {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
   const [isVisible, setIsVisible] = useState<boolean>(true);
   const [lastScrollY, setLastScrollY] = useState<number>(0);
-
+  
   const handleMenuToggle = () => {
     setMenuOpen(!menuOpen);
   };
@@ -60,27 +61,23 @@ const Header = () => {
         <Menubar className="lg:hidden bg-transparent border-0">
           <MenubarMenu>
             <NavLink to="/">
-              <figure className="h-[1.5rem] w-[1.5rem]">
-                <img
-                  src="/assets/home/home-icn.png"
-                  alt="home icon"
-                  className="h-full w-full object-cover"
-                />
-              </figure>
+              <FaHome className="text-white text-2xl" />
             </NavLink>
           </MenubarMenu>
         </Menubar>
         <Menubar className="hidden lg:flex bg-transparent border-0 justify-between w-full">
           <MenubarMenu>
             <div>
-              <span className="bg-white text-primary rounded-full py-1 px-3 text-sm font-semibold shadow-md whitespace-nowrap">
+              <span className="bg-white text-primary rounded-full py-1 px-3 text-sm font-semibold shadow-md whitespace-nowrap flex items-center">
+                <FaCalendarAlt className="mr-2" />
                 {date}
               </span>
             </div>
           </MenubarMenu>
           <MenubarMenu>
             <a href="tel:+919036033300" className="no-underline">
-              <span className="bg-white text-primary rounded-full py-1 px-3 text-sm font-semibold shadow-md whitespace-nowrap">
+              <span className="bg-white text-primary rounded-full py-1 px-3 text-sm font-semibold shadow-md whitespace-nowrap flex items-center">
+                <FaPhone className="mr-2" />
                 Call us: +91 90360 33300
               </span>
             </a>

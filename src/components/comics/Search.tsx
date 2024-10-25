@@ -318,7 +318,7 @@ const Search: React.FC<{ content: string }> = ({ content }) => {
             </div>
             <SheetClose asChild>
               <button
-                onClick={() => navigate("comics-list")}
+                onClick={() => navigate("/mentoons-comics")}
                 className="bg-primary font-medium hover:bg-white hover:text-primary transition-all duration-300 ease-in-out px-3 py-3 w-full text-center m-auto text-white rounded-xl"
               >
                 View All
